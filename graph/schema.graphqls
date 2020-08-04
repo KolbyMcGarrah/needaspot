@@ -1,0 +1,91 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Request {
+  id: ID!
+  title: String!
+  location: String!
+  workout: String!
+  status: String
+  time: String
+  user: User!
+  created_ts: String
+}
+
+type Interest {
+  id: ID!
+  user: User!
+  accepted_user: User
+  request: Request!
+  description: String
+  accepted: Boolean!
+  created_ts: String
+  accepted_ts: String
+}
+
+type User {
+  id: ID!
+  username: String!
+  age: Int!
+  gender: String!
+  level: String!
+}
+
+type Comment {
+  id: ID!
+  user: User!
+  req: Request!
+  text: String!
+  created_ts: String!
+}
+
+type Query {
+  requests: [Request!]!
+  comments: [Comment!]!
+  interests: [Interest!]!
+}
+
+input NewComment {
+  text: String!
+  req: String!
+}
+
+input NewRequest {
+  title: String!
+  location: String!
+  workout: String!
+  time: String!
+}
+
+input RefreshTokenInput{
+  token: String!
+}
+
+input NewUser{
+  username: String!
+  password: String!
+  age: Int!
+  gender: String!
+  level: String!
+}
+
+input Login{
+  username: String!
+  password: String!
+}
+
+input NewInterest{
+  user: String!
+  req: String!
+  description: String
+}
+
+type Mutation {
+  createRequest(input: NewRequest!): Request!
+  createUser(input:NewUser!): String!
+  login(input:Login!): String!
+  refreshToken(input: RefreshTokenInput!): String!
+  createComment(input: NewComment!): Comment!
+  createInterest(input: NewInterest!):String!
+}

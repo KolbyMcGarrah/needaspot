@@ -1,0 +1,2 @@
+ALTER TABLE requests ADD COLUMN time DATE;
+ALTER TABLE requests ADD COLUMN status VARCHAR(25);

@@ -1,0 +1,2 @@
+ALTER TABLE requests DROP COLUMN time;
+ALTER TABLE requests DROP COLUMN status;

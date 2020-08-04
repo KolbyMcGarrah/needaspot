@@ -1,0 +1,1 @@
+ALTER TABLE users ALTER COLUMN created_on DROP DEFAULT;
