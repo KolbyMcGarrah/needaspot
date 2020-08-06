@@ -28,6 +28,7 @@ func (r *mutationResolver) CreateRequest(ctx context.Context, input model.NewReq
 	request.Title = input.Title
 	request.Location = input.Location
 	request.Workout = input.Workout
+	request.Time = input.Time
 	request.User = user
 
 	requestId := request.Save()
@@ -121,6 +122,26 @@ func (r *queryResolver) Comments(ctx context.Context) ([]*model.Comment, error) 
 
 func (r *queryResolver) Interests(ctx context.Context) ([]*model.Interest, error) {
 	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) RequestByID(ctx context.Context, input model.RequestByID) (*model.Request, error) {
+	req := requests.GetReqByID(input.ID)
+	returnReq := model.Request{
+		ID:       req.ID,
+		Title:    req.Title,
+		Location: req.Location,
+		Workout:  req.Workout,
+		Time:     &req.Time,
+	}
+	reqUser := &model.User{
+		ID:       req.User.ID,
+		Username: req.User.Username,
+		Age:      req.User.Age,
+		Gender:   req.User.Gender,
+		Level:    req.User.Level,
+	}
+	returnReq.User = reqUser
+	return &returnReq, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

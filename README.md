@@ -8,6 +8,6 @@ Installation steps are in progress as this is still being built.
 
 ## Usage
 
-Run the following command to start the graphql playground which can currently be accessed by visiting localhost on port 8000. 
+Run the following command to start the graphql playground which can currently be accessed by visiting localhost on port 8080. 
 
 ``` go run server.go ```

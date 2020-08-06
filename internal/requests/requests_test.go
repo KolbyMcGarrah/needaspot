@@ -99,6 +99,7 @@ func InitializeData() (users.User, Request, string) {
 	request.Title = "Big Chest Day"
 	request.Workout = "Chest"
 	request.User = &user
+	request.Time = "2020-10-12 11:30"
 
 	return user, request, ""
 }

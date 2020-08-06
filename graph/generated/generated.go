@@ -72,18 +72,21 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Comments  func(childComplexity int) int
-		Interests func(childComplexity int) int
-		Requests  func(childComplexity int) int
+		Comments    func(childComplexity int) int
+		Interests   func(childComplexity int) int
+		RequestByID func(childComplexity int, input model.RequestByID) int
+		Requests    func(childComplexity int) int
 	}
 
 	Request struct {
-		ID       func(childComplexity int) int
-		Location func(childComplexity int) int
-		Status   func(childComplexity int) int
-		Title    func(childComplexity int) int
-		User     func(childComplexity int) int
-		Workout  func(childComplexity int) int
+		CreatedTs func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Location  func(childComplexity int) int
+		Status    func(childComplexity int) int
+		Time      func(childComplexity int) int
+		Title     func(childComplexity int) int
+		User      func(childComplexity int) int
+		Workout   func(childComplexity int) int
 	}
 
 	User struct {
@@ -107,6 +110,7 @@ type QueryResolver interface {
 	Requests(ctx context.Context) ([]*model.Request, error)
 	Comments(ctx context.Context) ([]*model.Comment, error)
 	Interests(ctx context.Context) ([]*model.Interest, error)
+	RequestByID(ctx context.Context, input model.RequestByID) (*model.Request, error)
 }
 
 type executableSchema struct {
@@ -301,12 +305,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Interests(childComplexity), true
 
+	case "Query.requestByID":
+		if e.complexity.Query.RequestByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_requestByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.RequestByID(childComplexity, args["input"].(model.RequestByID)), true
+
 	case "Query.requests":
 		if e.complexity.Query.Requests == nil {
 			break
 		}
 
 		return e.complexity.Query.Requests(childComplexity), true
+
+	case "Request.created_ts":
+		if e.complexity.Request.CreatedTs == nil {
+			break
+		}
+
+		return e.complexity.Request.CreatedTs(childComplexity), true
 
 	case "Request.id":
 		if e.complexity.Request.ID == nil {
@@ -328,6 +351,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Request.Status(childComplexity), true
+
+	case "Request.time":
+		if e.complexity.Request.Time == nil {
+			break
+		}
+
+		return e.complexity.Request.Time(childComplexity), true
 
 	case "Request.title":
 		if e.complexity.Request.Title == nil {
@@ -459,7 +489,9 @@ type Request {
   location: String!
   workout: String!
   status: String
+  time: String
   user: User!
+  created_ts: String
 }
 
 type Interest {
@@ -493,6 +525,7 @@ type Query {
   requests: [Request!]!
   comments: [Comment!]!
   interests: [Interest!]!
+  requestByID(input: RequestByID!): Request!
 }
 
 input NewComment {
@@ -504,6 +537,11 @@ input NewRequest {
   title: String!
   location: String!
   workout: String!
+  time: String!
+}
+
+input RequestByID{
+  id: Int!
 }
 
 input RefreshTokenInput{
@@ -639,6 +677,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_requestByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.RequestByID
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNRequestByID2githubᚗcomᚋKolbyMcGarrahᚋnasᚋgraphᚋmodelᚐRequestByID(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1456,6 +1508,47 @@ func (ec *executionContext) _Query_interests(ctx context.Context, field graphql.
 	return ec.marshalNInterest2ᚕᚖgithubᚗcomᚋKolbyMcGarrahᚋnasᚋgraphᚋmodelᚐInterestᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_requestByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_requestByID_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().RequestByID(rctx, args["input"].(model.RequestByID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Request)
+	fc.Result = res
+	return ec.marshalNRequest2ᚖgithubᚗcomᚋKolbyMcGarrahᚋnasᚋgraphᚋmodelᚐRequest(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1692,6 +1785,37 @@ func (ec *executionContext) _Request_status(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Request_time(ctx context.Context, field graphql.CollectedField, obj *model.Request) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Request",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Time, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Request_user(ctx context.Context, field graphql.CollectedField, obj *model.Request) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1724,6 +1848,37 @@ func (ec *executionContext) _Request_user(ctx context.Context, field graphql.Col
 	res := resTmp.(*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖgithubᚗcomᚋKolbyMcGarrahᚋnasᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Request_created_ts(ctx context.Context, field graphql.CollectedField, obj *model.Request) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Request",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedTs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -3053,6 +3208,12 @@ func (ec *executionContext) unmarshalInputNewRequest(ctx context.Context, obj in
 			if err != nil {
 				return it, err
 			}
+		case "time":
+			var err error
+			it.Time, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -3110,6 +3271,24 @@ func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context,
 		case "token":
 			var err error
 			it.Token, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRequestByID(ctx context.Context, obj interface{}) (model.RequestByID, error) {
+	var it model.RequestByID
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3337,6 +3516,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "requestByID":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_requestByID(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -3385,11 +3578,15 @@ func (ec *executionContext) _Request(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "status":
 			out.Values[i] = ec._Request_status(ctx, field, obj)
+		case "time":
+			out.Values[i] = ec._Request_time(ctx, field, obj)
 		case "user":
 			out.Values[i] = ec._Request_user(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "created_ts":
+			out.Values[i] = ec._Request_created_ts(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3910,6 +4107,10 @@ func (ec *executionContext) marshalNRequest2ᚖgithubᚗcomᚋKolbyMcGarrahᚋna
 		return graphql.Null
 	}
 	return ec._Request(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRequestByID2githubᚗcomᚋKolbyMcGarrahᚋnasᚋgraphᚋmodelᚐRequestByID(ctx context.Context, v interface{}) (model.RequestByID, error) {
+	return ec.unmarshalInputRequestByID(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

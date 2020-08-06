@@ -41,6 +41,7 @@ type NewRequest struct {
 	Title    string `json:"title"`
 	Location string `json:"location"`
 	Workout  string `json:"workout"`
+	Time     string `json:"time"`
 }
 
 type NewUser struct {
@@ -56,12 +57,18 @@ type RefreshTokenInput struct {
 }
 
 type Request struct {
-	ID       string  `json:"id"`
-	Title    string  `json:"title"`
-	Location string  `json:"location"`
-	Workout  string  `json:"workout"`
-	Status   *string `json:"status"`
-	User     *User   `json:"user"`
+	ID        string  `json:"id"`
+	Title     string  `json:"title"`
+	Location  string  `json:"location"`
+	Workout   string  `json:"workout"`
+	Status    *string `json:"status"`
+	Time      *string `json:"time"`
+	User      *User   `json:"user"`
+	CreatedTs *string `json:"created_ts"`
+}
+
+type RequestByID struct {
+	ID int `json:"id"`
 }
 
 type User struct {

@@ -44,6 +44,7 @@ type Query {
   requests: [Request!]!
   comments: [Comment!]!
   interests: [Interest!]!
+  requestByID(input: RequestByID!): Request!
 }
 
 input NewComment {
@@ -56,6 +57,10 @@ input NewRequest {
   location: String!
   workout: String!
   time: String!
+}
+
+input RequestByID{
+  id: Int!
 }
 
 input RefreshTokenInput{
